@@ -209,7 +209,7 @@ namespace AudioCreation
             outputDeviceContainer.Background = new SolidColorBrush(Colors.Green);
 
             // Create a device input node using the default audio input device
-            CreateAudioDeviceInputNodeResult deviceInputNodeResult = await graph.CreateDeviceInputNodeAsync(MediaCategory.Other);
+            CreateAudioDeviceInputNodeResult deviceInputNodeResult = await graph.CreateDeviceInputNodeAsync(MediaCategory.Media);
 
             if (deviceInputNodeResult.Status != AudioDeviceNodeCreationStatus.Success)
             {
