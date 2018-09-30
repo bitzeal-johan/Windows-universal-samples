@@ -41,8 +41,8 @@ namespace AudioCreation
         private MainPage rootPage;
         private AudioGraph graph;
         private AudioFileOutputNode fileOutputNode;
-        private AudioDeviceOutputNode deviceOutputNode;
-        private AudioDeviceInputNode deviceInputNode;
+        private AudioDeviceOutputNode _deviceOutputNode;
+        private AudioDeviceInputNode _deviceInputNode;
         private DeviceInformationCollection outputDevices;
 
         public Scenario2_DeviceCapture()
@@ -112,8 +112,8 @@ namespace AudioCreation
             fileButton.Background = new SolidColorBrush(Colors.YellowGreen);
 
             // Connect the input node to both output nodes
-            deviceInputNode.AddOutgoingConnection(fileOutputNode);
-            deviceInputNode.AddOutgoingConnection(deviceOutputNode);
+            _deviceInputNode.AddOutgoingConnection(fileOutputNode);
+            _deviceInputNode.AddOutgoingConnection(_deviceOutputNode);
             recordStopButton.IsEnabled = true;
         }
 
@@ -204,7 +204,7 @@ namespace AudioCreation
                 return;
             }
 
-            deviceOutputNode = deviceOutputNodeResult.DeviceOutputNode;
+            _deviceOutputNode = deviceOutputNodeResult.DeviceOutputNode;
             rootPage.NotifyUser("Device Output connection successfully created", NotifyType.StatusMessage);
             outputDeviceContainer.Background = new SolidColorBrush(Colors.Green);
 
@@ -219,7 +219,7 @@ namespace AudioCreation
                 return;
             }
 
-            deviceInputNode = deviceInputNodeResult.DeviceInputNode;
+            _deviceInputNode = deviceInputNodeResult.DeviceInputNode;
             rootPage.NotifyUser("Device Input connection successfully created", NotifyType.StatusMessage);
             inputDeviceContainer.Background = new SolidColorBrush(Colors.Green);
 

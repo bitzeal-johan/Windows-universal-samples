@@ -15,6 +15,7 @@ using System;
 using System.Threading.Tasks;
 using Windows.Foundation.Collections;
 using Windows.Media.Audio;
+using Windows.Media.Capture;
 using Windows.Media.Effects;
 using Windows.Media.Render;
 using Windows.Storage;
@@ -34,10 +35,11 @@ namespace AudioCreation
     /// </summary>
     public sealed partial class Scenario6_CustomEffects : Page
     {
-        private MainPage rootPage;
-        private AudioGraph graph;
-        private AudioFileInputNode fileInputNode;
-        private AudioDeviceOutputNode deviceOutputNode;
+        private MainPage _rootPage;
+        private AudioGraph _graph;
+        private AudioFileInputNode _fileInputNode;
+        private AudioDeviceOutputNode _deviceOutputNode;
+        private AudioDeviceInputNode _deviceInputNode;
 
         public Scenario6_CustomEffects()
         {
@@ -46,15 +48,15 @@ namespace AudioCreation
 
         protected override async void OnNavigatedTo(NavigationEventArgs e)
         {
-            rootPage = MainPage.Current;
+            _rootPage = MainPage.Current;
             await CreateAudioGraph();
         }
 
         protected override void OnNavigatedFrom(NavigationEventArgs e)
         {
-            if (graph != null)
+            if (_graph != null)
             {
-                graph.Dispose();
+                _graph.Dispose();
             }
         }
 
@@ -65,50 +67,56 @@ namespace AudioCreation
 
         private async Task SelectInputFile()
         {
-            // If another file is already loaded into the FileInput node
-            if (fileInputNode != null)
-            {
-                // Release the file and dispose the contents of the node
-                fileInputNode.Dispose();
-                // Stop playback since a new file is being loaded. Also reset the button UI
-                if (graphButton.Content.Equals("Stop Graph"))
-                {
-                    TogglePlay();
-                }
-            }
+            //if (_graph == null)
+            //    return;
 
-            FileOpenPicker filePicker = new FileOpenPicker();
-            filePicker.SuggestedStartLocation = PickerLocationId.MusicLibrary;
-            filePicker.FileTypeFilter.Add(".mp3");
-            filePicker.ViewMode = PickerViewMode.Thumbnail;
-            StorageFile file = await filePicker.PickSingleFileAsync();
+            //// If another file is already loaded into the FileInput node
+            //if (_fileInputNode != null)
+            //{
+            //    // Release the file and dispose the contents of the node
+            //    _fileInputNode.Dispose();
+            //    // Stop playback since a new file is being loaded. Also reset the button UI
+            //    if (graphButton.Content.Equals("Stop Graph"))
+            //    {
+            //        TogglePlay();
+            //    }
+            //}
 
-            // File can be null if cancel is hit in the file picker
-            if (file == null)
-            {
-                return;
-            }
+            //FileOpenPicker filePicker = new FileOpenPicker();
+            //filePicker.SuggestedStartLocation = PickerLocationId.MusicLibrary;
+            //filePicker.FileTypeFilter.Add(".mp3");
+            //filePicker.ViewMode = PickerViewMode.Thumbnail;
+            //StorageFile file = await filePicker.PickSingleFileAsync();
 
-            CreateAudioFileInputNodeResult fileInputNodeResult = await graph.CreateFileInputNodeAsync(file);
-            if (fileInputNodeResult.Status != AudioFileNodeCreationStatus.Success)
-            {
-                // Cannot read file
-                rootPage.NotifyUser(String.Format("Cannot read input file because {0}", fileInputNodeResult.Status.ToString()), NotifyType.ErrorMessage);
-                return;
-            }
+            //// File can be null if cancel is hit in the file picker
+            //if (file == null)
+            //{
+            //    return;
+            //}
 
-            fileInputNode = fileInputNodeResult.FileInputNode;
-            fileInputNode.AddOutgoingConnection(deviceOutputNode);
+            //CreateAudioFileInputNodeResult fileInputNodeResult = await _graph.CreateFileInputNodeAsync(file);
+            //if (fileInputNodeResult.Status != AudioFileNodeCreationStatus.Success)
+            //{
+            //    // Cannot read file
+            //    _rootPage.NotifyUser(String.Format("Cannot read input file because {0}", fileInputNodeResult.Status.ToString()), NotifyType.ErrorMessage);
+            //    return;
+            //}
+
+            //_fileInputNode = fileInputNodeResult.FileInputNode;
+            // _fileInputNode.AddOutgoingConnection(_deviceOutputNode);
+
+            _deviceInputNode.AddOutgoingConnection(_deviceOutputNode);
             fileButton.Background = new SolidColorBrush(Colors.Green);
 
             // Event Handler for file completion
-            fileInputNode.FileCompleted += FileInput_FileCompleted;
+            // _fileInputNode.FileCompleted += FileInput_FileCompleted;
 
             // Enable the button to start the graph
             graphButton.IsEnabled = true;
 
             // Create the custom effect and apply to the FileInput node
-            AddCustomEffect();
+//            AddCustomEffect(_fileInputNode);
+            AddCustomEffect(_deviceInputNode);
         }
 
         private void Graph_Click(object sender, RoutedEventArgs e)
@@ -121,13 +129,13 @@ namespace AudioCreation
             // Toggle playback
             if (graphButton.Content.Equals("Start Graph"))
             {
-                graph.Start();
+                _graph.Start();
                 graphButton.Content = "Stop Graph";
                 audioPipe.Fill = new SolidColorBrush(Colors.Blue);
             }
             else
             {
-                graph.Stop();
+                _graph.Stop();
                 graphButton.Content = "Start Graph";
                 audioPipe.Fill = new SolidColorBrush(Color.FromArgb(255, 49, 49, 49));
             }
@@ -142,29 +150,41 @@ namespace AudioCreation
             if (result.Status != AudioGraphCreationStatus.Success)
             {
                 // Cannot create graph
-                rootPage.NotifyUser(String.Format("AudioGraph Creation Error because {0}", result.Status.ToString()), NotifyType.ErrorMessage);
+                _rootPage.NotifyUser(String.Format("AudioGraph Creation Error because {0}", result.Status.ToString()), NotifyType.ErrorMessage);
                 return;
             }
 
-            graph = result.Graph;
+            _graph = result.Graph;
 
             // Create a device output node
-            CreateAudioDeviceOutputNodeResult deviceOutputResult = await graph.CreateDeviceOutputNodeAsync();
+            CreateAudioDeviceOutputNodeResult deviceOutputResult = await _graph.CreateDeviceOutputNodeAsync();
 
             if (deviceOutputResult.Status != AudioDeviceNodeCreationStatus.Success)
             {
                 // Cannot create device output
-                rootPage.NotifyUser(String.Format("Audio Device Output unavailable because {0}", deviceOutputResult.Status.ToString()), NotifyType.ErrorMessage);
+                _rootPage.NotifyUser(String.Format("Audio Device Output unavailable because {0}", deviceOutputResult.Status.ToString()), NotifyType.ErrorMessage);
                 speakerContainer.Background = new SolidColorBrush(Colors.Red);
                 return;
             }
 
-            deviceOutputNode = deviceOutputResult.DeviceOutputNode;
-            rootPage.NotifyUser("Device Output Node successfully created", NotifyType.StatusMessage);
+            _deviceOutputNode = deviceOutputResult.DeviceOutputNode;
+            _rootPage.NotifyUser("Device Output Node successfully created", NotifyType.StatusMessage);
             speakerContainer.Background = new SolidColorBrush(Colors.Green);
+
+            // Create a device input node using the default audio input device
+            CreateAudioDeviceInputNodeResult deviceInputNodeResult = await _graph.CreateDeviceInputNodeAsync(MediaCategory.Other);
+
+            if (deviceInputNodeResult.Status != AudioDeviceNodeCreationStatus.Success)
+            {
+                // Cannot create device input node
+                _rootPage.NotifyUser(String.Format("Audio Device Input unavailable because {0}", deviceInputNodeResult.Status.ToString()), NotifyType.ErrorMessage);
+                return;
+            }
+
+            _deviceInputNode = deviceInputNodeResult.DeviceInputNode;
         }
 
-        private void AddCustomEffect()
+        private void AddCustomEffect(IAudioInputNode audioFileInputNode)
         {
             // Create a property set and add a property/value pair
             PropertySet echoProperties = new PropertySet();
@@ -172,21 +192,21 @@ namespace AudioCreation
 
             // Instantiate the custom effect defined in the 'CustomEffect' project
             AudioEffectDefinition echoEffectDefinition = new AudioEffectDefinition(typeof(AudioEchoEffect).FullName, echoProperties);
-            fileInputNode.EffectDefinitions.Add(echoEffectDefinition);
+            audioFileInputNode.EffectDefinitions.Add(echoEffectDefinition);
         }
 
         // Event handler for file completion event
         private async void FileInput_FileCompleted(AudioFileInputNode sender, object args)
         {
             // File playback is done. Stop the graph
-            graph.Stop();
+            _graph.Stop();
 
             // Reset the file input node so starting the graph will resume playback from beginning of the file
             sender.Reset();
 
             await Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
             {
-                rootPage.NotifyUser("End of file reached", NotifyType.StatusMessage);
+                _rootPage.NotifyUser("End of file reached", NotifyType.StatusMessage);
                 graphButton.Content = "Start Graph";
             });
         }
