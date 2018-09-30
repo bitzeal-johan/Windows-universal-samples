@@ -116,7 +116,7 @@ namespace AudioCreation
 
             // Create the custom effect and apply to the FileInput node
 //            AddCustomEffect(_fileInputNode);
-            AddCustomEffect(_deviceInputNode);
+            // AddCustomEffect(_deviceInputNode);
         }
 
         private void Graph_Click(object sender, RoutedEventArgs e)
@@ -145,6 +145,7 @@ namespace AudioCreation
         {
             // Create an AudioGraph with default settings
             AudioGraphSettings settings = new AudioGraphSettings(AudioRenderCategory.Media);
+            settings.QuantumSizeSelectionMode = QuantumSizeSelectionMode.LowestLatency;
             CreateAudioGraphResult result = await AudioGraph.CreateAsync(settings);
 
             if (result.Status != AudioGraphCreationStatus.Success)
@@ -172,7 +173,7 @@ namespace AudioCreation
             speakerContainer.Background = new SolidColorBrush(Colors.Green);
 
             // Create a device input node using the default audio input device
-            CreateAudioDeviceInputNodeResult deviceInputNodeResult = await _graph.CreateDeviceInputNodeAsync(MediaCategory.Other);
+            CreateAudioDeviceInputNodeResult deviceInputNodeResult = await _graph.CreateDeviceInputNodeAsync(MediaCategory.Media);
 
             if (deviceInputNodeResult.Status != AudioDeviceNodeCreationStatus.Success)
             {
