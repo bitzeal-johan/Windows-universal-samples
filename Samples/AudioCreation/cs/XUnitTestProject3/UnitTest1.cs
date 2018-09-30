@@ -1,4 +1,3 @@
-using System;
 using CustomEffect;
 using Xunit;
 
