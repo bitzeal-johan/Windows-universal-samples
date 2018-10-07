@@ -183,6 +183,15 @@ namespace AudioCreation
             }
 
             _deviceInputNode = deviceInputNodeResult.DeviceInputNode;
+
+            var frameOutputNode = _graph.CreateFrameOutputNode();
+            _graph.QuantumProcessed += AudioGraph_QuantumProcessed;
+            _deviceInputNode.AddOutgoingConnection(frameOutputNode);
+        }
+
+        private void AudioGraph_QuantumProcessed(AudioGraph sender, object args)
+        {
+            
         }
 
         private void AddCustomEffect(IAudioInputNode audioFileInputNode)
