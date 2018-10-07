@@ -45,6 +45,7 @@
             <StackPanel Margin="0,0,0,10">
                 <TextBlock Text="Description:" Style="{StaticResource SampleHeaderTextStyle}"/>
                 <TextBlock Style="{StaticResource ScenarioDescriptionTextStyle}" TextWrapping="Wrap" Text="This scenario shows using custom effects with the AudioGraph API. In this example, an echo effect is created using the IBasicAudioEffect interface." />
+                <TextBlock x:Name="frames" Text="Frames counter" MinHeight="20" MinWidth="100" Margin="0, 20, 20, 0"></TextBlock>
             </StackPanel>
 
             <!--Main content is scrollable-->
@@ -56,11 +57,14 @@
                     <Border x:Name="speakerContainer" BorderThickness="0" Background="#4A4A4A" MinWidth="120" MinHeight="45" Margin="0,20,0,0">
                         <TextBlock x:Name="speaker" Text="Output Device" VerticalAlignment="Center" HorizontalAlignment="Center" />
                     </Border>
-
+                    
                     <!--Start/Stop Graph-->
                     <Button x:Name="graphButton" Content="Start Graph" Click="Graph_Click" MinWidth="120" MinHeight="45" IsEnabled="False" Margin="0,50,0,20"/>
                 </RelativePanel>
+               
             </ScrollViewer>
+
+          
 
             <!-- Status Block for providing messages to the user.  Use the
              NotifyUser() method to populate the message -->

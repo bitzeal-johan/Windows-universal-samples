@@ -40,6 +40,7 @@ namespace AudioCreation
         private AudioFileInputNode _fileInputNode;
         private AudioDeviceOutputNode _deviceOutputNode;
         private AudioDeviceInputNode _deviceInputNode;
+        private int _framesCounter = 0;
 
         public Scenario6_CustomEffects()
         {
@@ -189,9 +190,13 @@ namespace AudioCreation
             _deviceInputNode.AddOutgoingConnection(frameOutputNode);
         }
 
-        private void AudioGraph_QuantumProcessed(AudioGraph sender, object args)
+        private async void AudioGraph_QuantumProcessed(AudioGraph sender, object args)
         {
-            
+            _framesCounter++;
+            await Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
+            {
+                frames.Text = _framesCounter.ToString();
+            });
         }
 
         private void AddCustomEffect(IAudioInputNode audioFileInputNode)
